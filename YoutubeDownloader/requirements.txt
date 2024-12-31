@@ -1,4 +1,0 @@
-streamlit
-yt-dlp
-Pillow
-pip

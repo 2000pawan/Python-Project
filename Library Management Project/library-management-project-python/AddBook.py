@@ -40,7 +40,14 @@ def addBook():
     mypass = "root"
     mydatabase="db"
 
-    con = sql.connect(host="localhost",user="root",password="root",port=3306,database=mydatabase)
+    con = sql.connect(
+    host="localhost",
+    user="root",
+    password="root",
+    port=3306,
+    database=mydatabase,
+    auth_plugin="mysql_native_password"
+)
     cur = con.cursor()
 
     # Enter Table Names here

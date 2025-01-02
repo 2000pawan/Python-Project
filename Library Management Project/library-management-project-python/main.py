@@ -11,9 +11,16 @@ from ReturnBook import *
 #mypass = "root"
 mydatabase="db"
 
-con = sql.connect(host="localhost",user="root",password = "root",port=3306,database=mydatabase)
+con = sql.connect(
+    host="localhost",
+    user="root",
+    password="root",
+    port=3306,
+    database=mydatabase,
+    auth_plugin="mysql_native_password"
+)
 cur = con.cursor()
-
+print
 root = Tk()
 root.title("Library")
 root.minsize(width=400,height=400)
@@ -33,7 +40,7 @@ if same:
 else:
     newImageSizeHeight = int(imageSizeHeight/n) 
     
-background_image = background_image.resize((newImageSizeWidth,newImageSizeHeight),Image.ANTIALIAS)
+background_image = background_image.resize((newImageSizeWidth,newImageSizeHeight))
 img = ImageTk.PhotoImage(background_image)
 
 Canvas1 = Canvas(root)

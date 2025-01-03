@@ -25,7 +25,6 @@ bookTable = "booktable"
 allBid = [] 
 
 def issue():
-    
     global issueBtn,labelFrame,lb1,inf1,inf2,quitBtn,root,Canvas1,status
     
     bid = inf1.get()
@@ -37,8 +36,7 @@ def issue():
     inf1.destroy()
     inf2.destroy()
     
-    
-    extractBid = "select bid from "+bookTable
+    extractBid = "SELECT bid FROM "+bookTable
   
     try:
         cur.execute(extractBid)
@@ -47,8 +45,8 @@ def issue():
             allBid.append(i[0])
         
         if bid in allBid:
-            checkAvail = "select status from "+bookTable+" where bid = '"+bid+"'"
-            cur.execute(checkAvail)
+            checkAvail = "SELECT status FROM "+bookTable+" WHERE bid = %s"
+            cur.execute(checkAvail, (bid,))
             con.commit()
             for i in cur:
                 check = i[0]
@@ -63,15 +61,15 @@ def issue():
     except:
         messagebox.showinfo("Error","Can't fetch Book IDs")
     
-    issueSql = "insert into "+issueTable+" values ('"+bid+"','"+issueto+"')"
-    show = "select * from "+issueTable
+    issueSql = "INSERT INTO "+issueTable+" VALUES (%s, %s)"
+    show = "SELECT * FROM "+issueTable
     
-    updateStatus = "update "+bookTable+" set status = 'issued' where bid = '"+bid+"'"
+    updateStatus = "UPDATE "+bookTable+" SET status = 'issued' WHERE bid = %s"
     try:
         if bid in allBid and status == True:
-            cur.execute(issueSql)
+            cur.execute(issueSql, (bid, issueto))
             con.commit()
-            cur.execute(updateStatus)
+            cur.execute(updateStatus, (bid,))
             con.commit()
             messagebox.showinfo('Success',"Book Issued Successfully")
             root.destroy()
@@ -89,7 +87,6 @@ def issue():
     allBid.clear()
     
 def issueBook(): 
-    
     global issueBtn,labelFrame,lb1,inf1,inf2,quitBtn,root,Canvas1,status
     
     root = Tk()
@@ -123,7 +120,6 @@ def issueBook():
         
     inf2 = Entry(labelFrame)
     inf2.place(relx=0.3,rely=0.4, relwidth=0.62)
-    
     
     #Issue Button
     issueBtn = Button(root,text="Issue",bg='#d1ccc0', fg='black',command=issue)

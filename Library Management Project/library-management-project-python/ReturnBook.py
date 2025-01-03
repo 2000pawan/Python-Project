@@ -3,6 +3,7 @@ from PIL import ImageTk,Image
 from tkinter import messagebox
 import mysql.connector as sql
 
+
 # Add your own database name and password here to reflect in the code
 mypass = "root"
 mydatabase="db"
@@ -24,53 +25,57 @@ bookTable = "booktable" #Book Table
 allBid = [] #List To store all Book IDs
 
 def returnn():
-    global SubmitBtn,labelFrame,lb1,bookInfo1,quitBtn,root,Canvas1,status
-    
-    bid = bookInfo1.get()
+    global SubmitBtn, labelFrame, lb1, bookInfo1, quitBtn, root, Canvas1, status
 
-    extractBid = "SELECT bid FROM "+issueTable
+    bid = bookInfo1.get().strip()  # Ensure no leading/trailing spaces
+    allBid.clear()  # Clear the list before reusing
+
     try:
+        # Fetch all Book IDs from the issue table
+        extractBid = "SELECT bid FROM " + issueTable
         cur.execute(extractBid)
-        con.commit()
-        for i in cur:
-            allBid.append(i[0])
+        allBid.extend([str(i[0]) for i in cur.fetchall()])
         
         if bid in allBid:
-            checkAvail = "SELECT status FROM "+bookTable+" WHERE bid = %s"
+            # Check availability in bookTable
+            checkAvail = "SELECT status_book FROM " + bookTable + " WHERE bid = %s"
             cur.execute(checkAvail, (bid,))
-            con.commit()
-            for i in cur:
-                check = i[0]
-                
-            if check == 'issued':
-                status = True
-            else:
-                status = False
+            result = cur.fetchone()
 
+            if result:
+                check = result[0]
+                if check == 'issued':
+                    status = True
+                else:
+                    status = False
+            else:
+                raise ValueError("Book ID not found in bookTable.")
         else:
-            messagebox.showinfo("Error","Book ID not present")
-    except:
-        messagebox.showinfo("Error","Can't fetch Book IDs")
-    
-    issueSql = "DELETE FROM "+issueTable+" WHERE bid = %s"
-    updateStatus = "UPDATE "+bookTable+" SET status = 'avail' WHERE bid = %s"
+            messagebox.showinfo("Error", "Book ID not present in issue table.")
+            return
+
+    except Exception as e:
+        messagebox.showinfo("Error", f"Can't fetch Book IDs: {str(e)}")
+        return
+
+    # If book is issued, process the return
+    issueSql = "DELETE FROM " + issueTable + " WHERE bid = %s"
+    updateStatus = "UPDATE " + bookTable + " SET status_book = 'avail' WHERE bid = %s"
+
     try:
-        if bid in allBid and status == True:
+        if bid in allBid and status:
             cur.execute(issueSql, (bid,))
             con.commit()
             cur.execute(updateStatus, (bid,))
             con.commit()
-            messagebox.showinfo('Success',"Book Returned Successfully")
+            messagebox.showinfo('Success', "Book Returned Successfully")
         else:
-            allBid.clear()
-            messagebox.showinfo('Message',"Please check the book ID")
-            root.destroy()
-            return
-    except:
-        messagebox.showinfo("Search Error","The value entered is wrong, Try again")
-    
-    allBid.clear()
-    root.destroy()
+            messagebox.showinfo('Message', "Please check the book ID")
+    except Exception as e:
+        messagebox.showinfo("Error", f"Error in returning book: {str(e)}")
+    finally:
+        allBid.clear()
+        root.destroy()
 
 def returnBook(): 
     global bookInfo1,SubmitBtn,quitBtn,Canvas1,con,cur,root,labelFrame, lb1

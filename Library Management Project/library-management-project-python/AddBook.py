@@ -7,11 +7,11 @@ def bookRegister():
     bid = bookInfo1.get()
     title = bookInfo2.get()
     author = bookInfo3.get()
-    status = bookInfo4.get().lower()
+    status_book = bookInfo4.get().lower()
 
     insertBooks = "insert into {} values(%s, %s, %s, %s)".format(bookTable)
     try:
-        cur.execute(insertBooks, (bid, title, author, status))
+        cur.execute(insertBooks, (bid, title, author, status_book))
         con.commit()
         messagebox.showinfo('Success',"Book added successfully")
     except sql.Error as e:
@@ -20,7 +20,7 @@ def bookRegister():
     print(bid)
     print(title)
     print(author)
-    print(status)
+    print(status_book)
 
     root.destroy()
 
